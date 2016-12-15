@@ -20,6 +20,15 @@ type
      PScreenByteContainer = ^TScreenByteContainer;
      TScreenByteContainer = array [1..SCREEN_MAX_BYTES] of byte;
 
+     {************************************************************}
+     {*                     TScreen class                        *}
+     {*                    --------------                        *}
+     {*    Main objective of the class is to implement low-      *}
+     {*    level screen draw handle functionalities. In order to *}
+     {*    achieve maximum speed some functions are written in   *}
+     {*    asssembly.                                            *}
+     {*                                                          *}
+     {************************************************************}
      PScreen = ^TScreen;
      TScreen = object
        Palette : PPalett;
@@ -80,47 +89,45 @@ end;
 
 procedure TScreen.GetRGB( N: byte; var R, G, B: byte); assembler;
 asm
-                       { Az N. szin RGB-komponensei              }
-  mov    dx,03c7h      { RGB olvasas cimregiszter                }
-  mov    al,N          { Jelezzok a kartyanak, hogy az N. szin-  }
-  out    dx,al         { nel fogunk dolgozni (most: olvasni)     }
-  mov    dx,03c9h      { RGB adatregiszter                       }
-  in     al,dx         { Elso osszetevo lekerdezese              }
+  mov    dx,03c7h      { Read RGB data to register               }
+  mov    al,N          { Set output variable as N                }
+  out    dx,al
+  mov    dx,03c9h      { RGB register setup                      }
+  in     al,dx         { Read R parameter                        }
   les    di,R
   stosb
-  in     al,dx         { M�sodik osszetevo lekerdezese           }
+  in     al,dx         { Read G parameter                        }
   les    di,G
   stosb
-  in     al,dx         { Harmadik osszetevo lekerdezese          }
+  in     al,dx         { Read B parameter                        }
   les    di,B
   stosb
 end;
 
 procedure TScreen.SetRGB( N, R, G, B: byte); assembler;
 asm
-                       { Az N. szin oszetevoinek valtoztatasa    }
-  mov    dx,03c8h      { RGB iras cimregiszter                   }
+  mov    dx,03c8h      { RGB write register setup                }
   mov    al,N
   out    dx,al         { N. szin modositasa                      }
   mov    dx,03c9h      { RGB adatregiszter                       }
   mov    al,R
-  out    dx,al         { R osszetevo irasa                       }
+  out    dx,al         { Write R parameter                       }
   mov    al,G
-  out    dx,al         { G osszetevo i�rasa                      }
+  out    dx,al         { Write G parameter                       }
   mov    al,B
-  out    dx,al         { B osszetevo i�rsa                       }
+  out    dx,al         { Write B parameter                       }
 end;
 
 
 procedure TScreen.SetPixel( i, j : integer;Color : Byte);
 begin
   if ((i>=1) and (i<=SCREEN_WIDTH)) and ((j>=0) and (j<=SCREEN_HEIGHT)) then
-    _virtualScreenByteContainer^[j*SCREEN_WIDTH+i]:=Color;  { - elmentsuk a szint }
+    _virtualScreenByteContainer^[j*SCREEN_WIDTH+i]:=Color;
 end;
 
 function TScreen.GetPixel( i , j : integer) : Byte;
 begin
-  GetPixel:=_virtualScreenByteContainer^[j*SCREEN_WIDTH+i];{ - vissza teritsuk a kivant koordianta szinet}
+  GetPixel:=_virtualScreenByteContainer^[j*SCREEN_WIDTH+i];
 end;
 
 procedure TScreen.LoadPalette( _palette : PPalett);

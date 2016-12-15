@@ -1,18 +1,23 @@
-unit uedit;
+unit uLabel;
 
 interface
 
 uses
   Mouse, crt,
   uConsts,
-  uScreen, uKeys, uBob;
+  uScreen, uKeys;
 
 type
-    { - This should be a Label! }
-    TEdit = object
-      TEditX , TEditY , TAktX, TAktY : Integer;
+    {************************************************************}
+    {*                     TLabel class                         *}
+    {*                    --------------                        *}
+    {*    Main objective of the class is to draw text.          *}
+    {*                                                          *}
+    {************************************************************}
+    TLabel = object
+      TLabelX , TLabelY , TAktX, TAktY : Integer;
 
-      constructor Init( IEditX, IEditY : Integer);
+      constructor Init( ILabelX, ILabelY : Integer);
       destructor Done;
 
       procedure Draw( Index : byte; IColor : Byte);virtual; { Draw one should be }
@@ -21,15 +26,15 @@ type
 
 implementation
 
-constructor TEdit.Init( IEditX , IEditY : Integer);
+constructor TLabel.Init( ILabelX , ILabelY : Integer);
 begin
-    TEditX:=IEditX;
-    TEditY:=IEditY;
-    TAktX:=TEditX;
-    TAktY:=TEditY;
+    TLabelX:=ILabelX;
+    TLabelY:=ILabelY;
+    TAktX:=TLabelX;
+    TAktY:=TLabelY;
 end;
 
-procedure TEdit.DrawText( Text : string; IColor : Byte);
+procedure TLabel.DrawText( Text : string; IColor : Byte);
 var i : integer;
     index , index2: shortint;
     c : char;
@@ -112,10 +117,10 @@ begin
                TAktX:=TAktx+10;
              end;
       end;
-      TAktx:=TEditX;
+      TAktx:=TLabelX;
 end;
 
-procedure TEdit.Draw( Index : byte; IColor : Byte);
+procedure TLabel.Draw( Index : byte; IColor : Byte);
 var i , j  : integer;
 begin
     for i:=1 to 15 do
@@ -126,7 +131,7 @@ begin
     TAktX:=TAktx+10;
 end;
 
-destructor TEdit.Done;
+destructor TLabel.Done;
 begin
 end;
 

@@ -1,10 +1,10 @@
 
- program BobDrawerMainProgram_v1; { v1.0.0}
+ program SpriteEditorMainProgram_v1; { v1.0.0}
 
  uses
    Dos, Crt, Mouse,
    uConsts,
-   uIOScrn , uScreen, uKeys , UBob, UButton, UEdit;
+   uIOScrn , uScreen, uKeys , USprite, UButton, ULabel;
 
  var  OmouseX,OmouseY:integer;
       OldClk : word;
@@ -15,27 +15,27 @@
       Running : Boolean;
 
  type
-   PExBob = ^TExBob;
-   TExBob = object(TBob)
+   PExSprite = ^TExSprite;
+   TExSprite = object(TSprite)
      procedure OnMouseClick( MouseX , MouseY : Integer); virtual;
    end;
 
    {************************************************************}
-   {*                     TColorBob class                      *}
+   {*                     TColorSprite class                   *}
    {*                     ---------------                      *}
    {*    Main objective of the class is to draw colors in      *}
-   {*    the editor.                                           *}
+   {*    the Labelor.                                          *}
    {*                                                          *}
    {************************************************************}
-   PColorBob = ^TColorBob;
-   TColorBob = object(TBob)
+   PColorSprite = ^TColorSprite;
+   TColorSprite = object(TSprite)
      FSelectedRight,  FSelectedLeft : Boolean;
      procedure OnMouseClick( MouseX , MouseY : Integer); virtual;
      procedure Draw; virtual;
    end;
 
-   PMinimapBob = ^TMinimapBob;
-   TMinimapBob = object(TBob)
+   PMinimapSprite = ^TMinimapSprite;
+   TMinimapSprite = object(TSprite)
      procedure Draw; virtual;
    end;
 
@@ -59,22 +59,30 @@
    end;
 
 
-   PBobDrawer = ^TBobDrawer;
-   TBobDrawer = object(TIOScreen)
+   {************************************************************}
+   {*                     TSpriteEditor class                  *}
+   {*                     ---------------                      *}
+   {*    Main objective of the class is to implement and use   *}
+   {*    set of custom classes that make up the logic of the   *}
+   {*    Sprite editor                                         *}
+   {*                                                          *}
+   {************************************************************}
+   PSpriteEditor = ^TSpriteEditor;
+   TSpriteEditor = object(TIOScreen)
 
         {---------------------------------------------------------}
         {                 SceneDraw variables                     }
         {---------------------------------------------------------}
-        BOB_MAX_LENGTH , BOB_MAX_WIDTH , COLOR_PALLETTE_MAX_COLUM , COLOR_PALLETTE_MAX_ROW: integer;
-        BOB_LENGTH, BOB_HALF_LENGTH : Integer;
+        Sprite_MAX_LENGTH , Sprite_MAX_WIDTH , COLOR_PALLETTE_MAX_COLUM , COLOR_PALLETTE_MAX_ROW: integer;
+        Sprite_LENGTH, Sprite_HALF_LENGTH : Integer;
 
-        BobMenu : ^TMenuButton;
-        BobButton2 : PButton;
-        MinimapBob : ^TMinimapBob;
-        BobSidePanel : PButton;
-        BobPixel2DContainer : array [1..120,1..120] of PExBob;
-        ColorPalletteBobArray : array [0..MAX_PALLETTE_COLORS] of PColorBob;
-        MenuLabel : ^TEdit;
+        SpriteMenu : ^TMenuButton;
+        SpriteButton2 : PButton;
+        MinimapSprite : ^TMinimapSprite;
+        SpriteSidePanel : PButton;
+        SpritePixel2DContainer : array [1..120,1..120] of PExSprite;
+        ColorPalletteSpriteArray : array [0..MAX_PALLETTE_COLORS] of PColorSprite;
+        MenuLabel : ^TLabel;
 
         {---------------------------------------------------------}
         {                 SceneMenu variables                     }
@@ -84,7 +92,7 @@
         BtMLoad : ^TLoadButton;
         BtMExit : ^TExitButton;
         BtMNew : ^TNewButton;
-        DrawButtonLabel, SaveButtonLabel, LoadButtonLabel, ExitButtonLabel , NewButtonLabel: ^TEdit;
+        DrawButtonLabel, SaveButtonLabel, LoadButtonLabel, ExitButtonLabel , NewButtonLabel: ^TLabel;
 
         {---------------------------------------------------------}
         {                       Main functions                    }
@@ -107,9 +115,9 @@
         destructor Done; virtual;
       End;
 
- var  BobDrawerMainProgram : PBobDrawer;
+ var  SpriteEditorMainProgram : PSpriteEditor;
 
- procedure TBobDrawer.SetWhichMouseButtonPaints(Left,Right :Boolean);
+ procedure TSpriteEditor.SetWhichMouseButtonPaints(Left,Right :Boolean);
  var counter , i , j : integer;
  begin
      counter:=0;
@@ -118,17 +126,17 @@
        begin
         if Right = True then
           begin
-            ColorPalletteBobArray[counter]^.FSelectedRight:=False;
+            ColorPalletteSpriteArray[counter]^.FSelectedRight:=False;
           end
         else
           begin
-            ColorPalletteBobArray[counter]^.FSelectedLeft:=False;
+            ColorPalletteSpriteArray[counter]^.FSelectedLeft:=False;
             Inc(counter);
           end;
        end;
  end;
 
- constructor TBobDrawer.Init;
+ constructor TSpriteEditor.Init;
  var I , J: integer;
      counter : Integer;
  begin
@@ -167,23 +175,23 @@
      {---------------------------------------------------------}
      {                       SceneDraw                         }
      {---------------------------------------------------------}
-     BOB_MAX_LENGTH:=  24;
-     BOB_MAX_WIDTH :=  24;
-     BOB_LENGTH    :=  24;
-     BOB_HALF_LENGTH:=  16;
+     Sprite_MAX_LENGTH:=  24;
+     Sprite_MAX_WIDTH :=  24;
+     Sprite_LENGTH    :=  24;
+     Sprite_HALF_LENGTH:=  16;
      COLOR_PALLETTE_MAX_COLUM :=   1;
      COLOR_PALLETTE_MAX_ROW := 127;
      ColorSelectedY :=   0;
 
      { - Assign middle of the picture }
-      X:=-((BOB_MAX_LENGTH+1) div 2)*BOB_LENGTH;
-      Y:=-((BOB_MAX_WIDTH+1) div 2)*BOB_LENGTH;
+      X:=-((Sprite_MAX_LENGTH+1) div 2)*Sprite_LENGTH;
+      Y:=-((Sprite_MAX_WIDTH+1) div 2)*Sprite_LENGTH;
 
      for i:=1 to 120 do
       for j:=1 to 120 do
        begin
-         new(BobPixel2DContainer[i,j]);
-         BobPixel2DContainer[i,j]^.Init( i*BOB_LENGTH, j*BOB_LENGTH, BOB_LENGTH, BOB_LENGTH,i+j*2);
+         new(SpritePixel2DContainer[i,j]);
+         SpritePixel2DContainer[i,j]^.Init( i*Sprite_LENGTH, j*Sprite_LENGTH, Sprite_LENGTH, Sprite_LENGTH,i+j*2);
        end;
 
      counter:=0;
@@ -191,56 +199,56 @@
       for j:=0 to COLOR_PALLETTE_MAX_ROW do
        Begin
 
-        new(ColorPalletteBobArray[counter]);
+        new(ColorPalletteSpriteArray[counter]);
 
-        ColorPalletteBobArray[counter]^.Init(
-           8 + i*BOB_HALF_LENGTH,
-          21 + j*BOB_HALF_LENGTH,
-          BOB_HALF_LENGTH,
-          BOB_HALF_LENGTH,counter
+        ColorPalletteSpriteArray[counter]^.Init(
+           8 + i*Sprite_HALF_LENGTH,
+          21 + j*Sprite_HALF_LENGTH,
+          Sprite_HALF_LENGTH,
+          Sprite_HALF_LENGTH,counter
         );
-        ColorPalletteBobArray[counter]^.FSelectedRight:=False;
-        ColorPalletteBobArray[counter]^.FSelectedLeft:=False;
+        ColorPalletteSpriteArray[counter]^.FSelectedRight:=False;
+        ColorPalletteSpriteArray[counter]^.FSelectedLeft:=False;
 
         Inc(counter);
        End;
 
-     new(BobMenu);
-     new(BobButton2);
-     new(BobSidePanel);
-     new(MinimapBob);
+     new(SpriteMenu);
+     new(SpriteButton2);
+     new(SpriteSidePanel);
+     new(MinimapSprite);
 
-     BobMenu^.Init(    1,   0,  40,  15, 24, 30, 6);
-     BobButton2^.Init(315-BOB_MAX_LENGTH-2, 0, BOB_MAX_LENGTH+2+2,  BOB_MAX_WIDTH+4, 26, 26, 6);
-     BobSidePanel^.Init(    1, 16,  40, 200, 26, 26, 6);
-     MinimapBob^.Init(315-BOB_MAX_LENGTH, 2, BOB_MAX_LENGTH,  BOB_MAX_WIDTH, 0);
+     SpriteMenu^.Init(    1,   0,  40,  15, 24, 30, 6);
+     SpriteButton2^.Init(315-Sprite_MAX_LENGTH-2, 0, Sprite_MAX_LENGTH+2+2,  Sprite_MAX_WIDTH+4, 26, 26, 6);
+     SpriteSidePanel^.Init(    1, 16,  40, 200, 26, 26, 6);
+     MinimapSprite^.Init(315-Sprite_MAX_LENGTH, 2, Sprite_MAX_LENGTH,  Sprite_MAX_WIDTH, 0);
 
      New(MenuLabel);
      MenuLabel^.Init( -2, -2);
  end;
 
 
- destructor TBobDrawer.Done;
+ destructor TSpriteEditor.Done;
  var i , j , counter : integer;
  begin
      inherited Done;
 
-     for i:=1 to BOB_MAX_LENGTH do
-      for j:=1 to BOB_MAX_WIDTH do
-       dispose(BobPixel2DContainer[i,j]);
+     for i:=1 to Sprite_MAX_LENGTH do
+      for j:=1 to Sprite_MAX_WIDTH do
+       dispose(SpritePixel2DContainer[i,j]);
 
      counter:=0;
      for i:=0 to COLOR_PALLETTE_MAX_COLUM do
       for j:=0 to COLOR_PALLETTE_MAX_ROW do
        begin
-        dispose(ColorPalletteBobArray[counter]);
+        dispose(ColorPalletteSpriteArray[counter]);
         Inc(counter);
        end;
 
      dispose(MenuLabel);
-     dispose(BobMenu);
-     dispose(BobButton2);
-     dispose(BobSidePanel);
+     dispose(SpriteMenu);
+     dispose(SpriteButton2);
+     dispose(SpriteSidePanel);
 
      dispose(BtMReturn);
      dispose(BtMSave);
@@ -252,10 +260,10 @@
      dispose(ExitButtonLabel);
  end;
 
- procedure TBobDrawer.OnKeyPressed;
+ procedure TSpriteEditor.OnKeyPressed;
  begin
-     if key[KeyS] = true then begin donekey;inc(Y, 2*BOB_LENGTH); end;
-     if key[KeyW] = true then begin donekey;dec(Y, 2*BOB_LENGTH); end;
+     if key[KeyS] = true then begin donekey;inc(Y, 2*Sprite_LENGTH); end;
+     if key[KeyW] = true then begin donekey;dec(Y, 2*Sprite_LENGTH); end;
 
      if key[KeyR] = true then
       if (ColorSelectedY<>-116*16) then
@@ -274,87 +282,87 @@
      if key[KeyA] = true then
       begin
        donekey;
-       dec(X, 2*BOB_LENGTH);
+       dec(X, 2*Sprite_LENGTH);
       end;
 
      if key[KeyD] = true then
       begin
        donekey;
-       inc(X, 2*BOB_LENGTH);
+       inc(X, 2*Sprite_LENGTH);
       end;
 
      { - Zoom                 }
      if (key[KeyX] = true) then
       begin
-       inc(BOB_LENGTH , 1);
-       X:=160-((BOB_MAX_LENGTH+1) div 2)*BOB_LENGTH;
-       Y:=100-((BOB_MAX_WIDTH+1) div 2)*BOB_LENGTH;
+       inc(Sprite_LENGTH , 1);
+       X:=160-((Sprite_MAX_LENGTH+1) div 2)*Sprite_LENGTH;
+       Y:=100-((Sprite_MAX_WIDTH+1) div 2)*Sprite_LENGTH;
        Donekey;
       end;
 
-     if (key[KeyZ] = true) and (BOB_LENGTH>1) then
+     if (key[KeyZ] = true) and (Sprite_LENGTH>1) then
       begin
-       dec(BOB_LENGTH , 1);
-       X:=160-((BOB_MAX_LENGTH+1) div 2)*BOB_LENGTH;
-       Y:=100-((BOB_MAX_WIDTH+1) div 2)*BOB_LENGTH;
+       dec(Sprite_LENGTH , 1);
+       X:=160-((Sprite_MAX_LENGTH+1) div 2)*Sprite_LENGTH;
+       Y:=100-((Sprite_MAX_WIDTH+1) div 2)*Sprite_LENGTH;
        DoneKey;
       end;
  end;
 
- procedure TBobDrawer.OnMouseButtonPressed( MouseX , MouseY : Integer);
+ procedure TSpriteEditor.OnMouseButtonPressed( MouseX , MouseY : Integer);
  var i , j : integer;
  begin
  end;
 
- procedure TBobDrawer.SceneDraw;
+ procedure TSpriteEditor.SceneDraw;
  var i , j , counter : integer;
-     CONDITION_BOB_OUT_OF_SCREEN : Boolean;
+     CONDITION_Sprite_OUT_OF_SCREEN : Boolean;
  begin
      ClearScreen(0);
 
-     CONDITION_BOB_OUT_OF_SCREEN:=True;
+     CONDITION_Sprite_OUT_OF_SCREEN:=True;
      i:=1;
      j:=1;
-     While (j<=BOB_MAX_WIDTH) and (CONDITION_BOB_OUT_OF_SCREEN = True) do
+     While (j<=Sprite_MAX_WIDTH) and (CONDITION_Sprite_OUT_OF_SCREEN = True) do
      begin
       i:=1;
-      While (i<=BOB_MAX_LENGTH) and (CONDITION_BOB_OUT_OF_SCREEN = True) do
+      While (i<=Sprite_MAX_LENGTH) and (CONDITION_Sprite_OUT_OF_SCREEN = True) do
       begin  {-}                           { + }
-          if (X+i*BOB_LENGTH>=-BOB_LENGTH) and (X+(i+1)*BOB_LENGTH<=319+BOB_LENGTH) then
+          if (X+i*Sprite_LENGTH>=-Sprite_LENGTH) and (X+(i+1)*Sprite_LENGTH<=319+Sprite_LENGTH) then
             begin
-              if (Y+j*BOB_LENGTH>=-BOB_LENGTH) and ((Y+(j+1)*BOB_LENGTH<=199+BOB_LENGTH)) then
+              if (Y+j*Sprite_LENGTH>=-Sprite_LENGTH) and ((Y+(j+1)*Sprite_LENGTH<=199+Sprite_LENGTH)) then
                 begin
-                  BobPixel2DContainer[i,j]^.Draw;
+                  SpritePixel2DContainer[i,j]^.Draw;
                 end;
             end;
 
-          if (X+(i+2)*BOB_LENGTH=319+BOB_LENGTH) and (Y+(j+2)*BOB_LENGTH=199+BOB_LENGTH) then
-            CONDITION_BOB_OUT_OF_SCREEN:=False;
+          if (X+(i+2)*Sprite_LENGTH=319+Sprite_LENGTH) and (Y+(j+2)*Sprite_LENGTH=199+Sprite_LENGTH) then
+            CONDITION_Sprite_OUT_OF_SCREEN:=False;
        Inc(i);
       end;
       Inc(j)
      end;
 
 
-     BobMenu^.Draw;
-     BobButton2^.Draw;
+     SpriteMenu^.Draw;
+     SpriteButton2^.Draw;
      MenuLabel^.DrawText( 'Menu',0);
-     BobSidePanel^.Draw;
+     SpriteSidePanel^.Draw;
 
-     MinimapBob^.Draw;
+     MinimapSprite^.Draw;
 
 
      counter:=0;
      for i:=0 to COLOR_PALLETTE_MAX_COLUM do
       for j:=0 to COLOR_PALLETTE_MAX_ROW do
        begin
-        ColorPalletteBobArray[counter]^.SetBounds(5+i*BOB_HALF_LENGTH,
-                                   ColorSelectedY+21+j*BOB_HALF_LENGTH,
-                                   BOB_HALF_LENGTH,
-                                   BOB_HALF_LENGTH);
-        if (ColorSelectedY+21+j*BOB_HALF_LENGTH>8) and
-           (ColorSelectedY+21+j*BOB_HALF_LENGTH<21+16*11) then
-          ColorPalletteBobArray[counter]^.Draw;
+        ColorPalletteSpriteArray[counter]^.SetBounds(5+i*Sprite_HALF_LENGTH,
+                                   ColorSelectedY+21+j*Sprite_HALF_LENGTH,
+                                   Sprite_HALF_LENGTH,
+                                   Sprite_HALF_LENGTH);
+        if (ColorSelectedY+21+j*Sprite_HALF_LENGTH>8) and
+           (ColorSelectedY+21+j*Sprite_HALF_LENGTH<21+16*11) then
+          ColorPalletteSpriteArray[counter]^.Draw;
         Inc(counter);
        end;
 
@@ -363,16 +371,16 @@
         begin
          ReadMouse;
 
-         BobMenu^.OnMouseClick( MousePoint.X , MousePoint.Y );
-         BobButton2^.OnMouseClick( MousePoint.X , MousePoint.Y );
-         BobSidePanel^.OnMouseClick( MousePoint.X , MousePoint.Y );
+         SpriteMenu^.OnMouseClick( MousePoint.X , MousePoint.Y );
+         SpriteButton2^.OnMouseClick( MousePoint.X , MousePoint.Y );
+         SpriteSidePanel^.OnMouseClick( MousePoint.X , MousePoint.Y );
 
          for i:=0 to 255 do
-           ColorPalletteBobArray[i]^.OnMouseClick( MousePoint.X , MousePoint.Y );;
+           ColorPalletteSpriteArray[i]^.OnMouseClick( MousePoint.X , MousePoint.Y );;
 
-         for i:=1 to BOB_MAX_LENGTH do
-          for j:=1 to BOB_MAX_WIDTH do
-            BobPixel2DContainer[i,j]^.OnMouseClick( MousePoint.X , MousePoint.Y );
+         for i:=1 to Sprite_MAX_LENGTH do
+          for j:=1 to Sprite_MAX_WIDTH do
+            SpritePixel2DContainer[i,j]^.OnMouseClick( MousePoint.X , MousePoint.Y );
      end;
 
      OnKeyPressed;
@@ -392,25 +400,25 @@
             Hidemouse;
           end;
 
-     for i:=1 to BOB_MAX_LENGTH do
-      for j:=1 to BOB_MAX_WIDTH do
-       if BOB_LENGTH>8 then
-        BobPixel2DContainer[i,j]^.SetBounds( X+i*BOB_LENGTH-2, Y+j*BOB_LENGTH-2,
-                                  BOB_LENGTH-2,     BOB_LENGTH-2)
+     for i:=1 to Sprite_MAX_LENGTH do
+      for j:=1 to Sprite_MAX_WIDTH do
+       if Sprite_LENGTH>8 then
+        SpritePixel2DContainer[i,j]^.SetBounds( X+i*Sprite_LENGTH-2, Y+j*Sprite_LENGTH-2,
+                                  Sprite_LENGTH-2,     Sprite_LENGTH-2)
        else
-        BobPixel2DContainer[i,j]^.SetBounds( X+i*BOB_LENGTH, Y+j*BOB_LENGTH,
-                                  BOB_LENGTH,     BOB_LENGTH);
+        SpritePixel2DContainer[i,j]^.SetBounds( X+i*Sprite_LENGTH, Y+j*Sprite_LENGTH,
+                                  Sprite_LENGTH,     Sprite_LENGTH);
 
      counter:=0;
      for i:=0 to COLOR_PALLETTE_MAX_COLUM do
      begin
        for j:=0 to COLOR_PALLETTE_MAX_ROW do
          begin
-           ColorPalletteBobArray[counter]^.SetBounds(
-              8 + i*BOB_HALF_LENGTH - 2,
-             21 + j*BOB_HALF_LENGTH - 2,
-             BOB_HALF_LENGTH-2,
-             BOB_HALF_LENGTH-2
+           ColorPalletteSpriteArray[counter]^.SetBounds(
+              8 + i*Sprite_HALF_LENGTH - 2,
+             21 + j*Sprite_HALF_LENGTH - 2,
+             Sprite_HALF_LENGTH-2,
+             Sprite_HALF_LENGTH-2
            );
            Inc(counter);
          end;
@@ -419,15 +427,15 @@
      {*********************************************************************}
      {*                            Set timers                             *}
      {*********************************************************************}
-     Inc(BobMenu^.FClock, 1);
-     Inc(BobButton2^.FClock, 1);
-     Inc( BobSidePanel^.FClock, 1);
-     BobMenu^.SetButtonClock(BobMenu^.FClock);
-     BobButton2^.SetButtonClock(BobButton2^.FClock);
-     BobSidePanel^.SetButtonClock( BobSidePanel^.FClock);
+     Inc(SpriteMenu^.FClock, 1);
+     Inc(SpriteButton2^.FClock, 1);
+     Inc( SpriteSidePanel^.FClock, 1);
+     SpriteMenu^.SetButtonClock(SpriteMenu^.FClock);
+     SpriteButton2^.SetButtonClock(SpriteButton2^.FClock);
+     SpriteSidePanel^.SetButtonClock( SpriteSidePanel^.FClock);
  end;
 
- procedure TBobDrawer.SceneMenu;
+ procedure TSpriteEditor.SceneMenu;
  begin
      ClearScreen(21);
 
@@ -482,12 +490,12 @@
      BtMNew^.SetButtonClock(BtMNew^.FClock);
  end;
 
- procedure TBobDrawer.Draw;
+ procedure TSpriteEditor.Draw;
  begin
     inherited Draw;
  end;
 
- procedure TBobDrawer.BeforeDraw;
+ procedure TSpriteEditor.BeforeDraw;
  begin
     if IsDrawScene then
      SceneDraw
@@ -497,14 +505,14 @@
     inherited BeforeDraw;
  end;
 
- procedure TBobDrawer.DoneKey;
+ procedure TSpriteEditor.DoneKey;
  var I : Byte;
  begin
      For I:=1 to 255 do
       Key[I]:=False;
  end;
 
- procedure TBobDrawer.SaveFile;
+ procedure TSpriteEditor.SaveFile;
  var i , j , CollorId: Integer;
      f : Text;
      nev : string;
@@ -516,7 +524,7 @@
 
      writeln;
      writeln(' {---------------------------------------------------------------------------}');
-     writeln(' {                            Save Bob to a file                             }');
+     writeln(' {                            Save Sprite to a file                             }');
      writeln(' {                           --------------------                            }');
      writeln(' {---------------------------------------------------------------------------}');
      writeln('    |                                                                        ');
@@ -543,14 +551,14 @@
      else
       rewrite(f);
 
-     writeln(f,BOB_MAX_LENGTH,' ',BOB_MAX_WIDTH);
+     writeln(f,Sprite_MAX_LENGTH,' ',Sprite_MAX_WIDTH);
      J:=1;
-     while j<=BOB_MAX_WIDTH do
+     while j<=Sprite_MAX_WIDTH do
       begin
        I:=1;
-       while I<=BOB_MAX_LENGTH do
+       while I<=Sprite_MAX_LENGTH do
        begin
-        write(f, BobPixel2DContainer[i,j]^.FColor,' ');
+        write(f, SpritePixel2DContainer[i,j]^.FColor,' ');
         inc(I);
        end;
        inc(J);
@@ -562,7 +570,7 @@
      SetMCGA;
  end;
 
- procedure TBobDrawer.LoadFile;
+ procedure TSpriteEditor.LoadFile;
  var i , j , CollorId: Integer;
      f : Text;
      nev : string;
@@ -574,7 +582,7 @@
      Clrscr;
      writeln;
      writeln(' {---------------------------------------------------------------------------}');
-     writeln(' {                          Load Bob from a file                             }');
+     writeln(' {                          Load Sprite from a file                             }');
      writeln(' {                         ----------------------                            }');
      writeln(' {---------------------------------------------------------------------------}');
      writeln('    |                                                                        ');
@@ -591,25 +599,25 @@
       begin
        assign(f, nev);
        reset(f);
-       readln(f,BOB_MAX_LENGTH,BOB_MAX_WIDTH);
+       readln(f,Sprite_MAX_LENGTH,Sprite_MAX_WIDTH);
        J:=1;
-       while J<=BOB_MAX_LENGTH do
+       while J<=Sprite_MAX_LENGTH do
         begin
          i:=1;
-         while I<=BOB_MAX_WIDTH do
+         while I<=Sprite_MAX_WIDTH do
           begin
            read(f,CollorId);
-           BobPixel2DContainer[i,j]^.FColor:=CollorId;
+           SpritePixel2DContainer[i,j]^.FColor:=CollorId;
            inc(I);
           end;
          readln(f);
          inc(J);
         end;
        close(f);
-       MinimapBob^.Init(315-BOB_MAX_LENGTH, 2, BOB_MAX_LENGTH,  BOB_MAX_WIDTH, 0);
-       BobButton2^.Init(315-BOB_MAX_LENGTH-2, 0, BOB_MAX_LENGTH+2+2,  BOB_MAX_WIDTH+4, 26, 26, 6);
-       X:=160-((BOB_MAX_LENGTH+1) div 2)*BOB_LENGTH;
-       Y:=100-((BOB_MAX_WIDTH+1) div 2)*BOB_LENGTH;
+       MinimapSprite^.Init(315-Sprite_MAX_LENGTH, 2, Sprite_MAX_LENGTH,  Sprite_MAX_WIDTH, 0);
+       SpriteButton2^.Init(315-Sprite_MAX_LENGTH-2, 0, Sprite_MAX_LENGTH+2+2,  Sprite_MAX_WIDTH+4, 26, 26, 6);
+       X:=160-((Sprite_MAX_LENGTH+1) div 2)*Sprite_LENGTH;
+       Y:=100-((Sprite_MAX_WIDTH+1) div 2)*Sprite_LENGTH;
       end
      else
       begin
@@ -627,7 +635,7 @@
      SetMCGA;
  end;
 
- procedure TBobDrawer.NewFile;
+ procedure TSpriteEditor.NewFile;
  var i , j : integer;
      Color : Byte;
  begin
@@ -638,12 +646,12 @@
      Clrscr;
      writeln;
      writeln(' {---------------------------------------------------------------------------}');
-     writeln(' {                               Create new Bob                              }');
+     writeln(' {                               Create new Sprite                              }');
      writeln(' {                              ----------------                             }');
      writeln(' {---------------------------------------------------------------------------}');
      writeln;
      writeln(' {---------------------------------------------------------------------------}');
-     writeln(' {  Enter Bob sizes >>                                                       }');
+     writeln(' {  Enter Sprite sizes >>                                                       }');
      write(' {  Width:');
      readln(I);
      write(' {  Height:');
@@ -660,20 +668,20 @@
      writeln('                             - PRESS ENTER -                                  ');
      readln;
 
-     BOB_MAX_LENGTH:=I;
-     BOB_MAX_WIDTH:=J;
+     Sprite_MAX_LENGTH:=I;
+     Sprite_MAX_WIDTH:=J;
 
-     for i:=1 to BOB_MAX_LENGTH do
-      for j:=1 to BOB_MAX_WIDTH do
-       BobPixel2DContainer[i,j]^.FColor:=Color;
+     for i:=1 to Sprite_MAX_LENGTH do
+      for j:=1 to Sprite_MAX_WIDTH do
+       SpritePixel2DContainer[i,j]^.FColor:=Color;
 
      setintvec($09,@NewIRQ);
      fillchar(key, sizeof(key), 0);
      SetMCGA;
-     MinimapBob^.Init(315-BOB_MAX_LENGTH, 2, BOB_MAX_LENGTH,  BOB_MAX_WIDTH, 0);
-     BobButton2^.Init(315-BOB_MAX_LENGTH-2, 0, BOB_MAX_LENGTH+2+2,  BOB_MAX_WIDTH+4, 26, 26, 6);
-     X:=160-((BOB_MAX_LENGTH+1) div 2)*BOB_LENGTH;
-     Y:=100-((BOB_MAX_WIDTH+1) div 2)*BOB_LENGTH;
+     MinimapSprite^.Init(315-Sprite_MAX_LENGTH, 2, Sprite_MAX_LENGTH,  Sprite_MAX_WIDTH, 0);
+     SpriteButton2^.Init(315-Sprite_MAX_LENGTH-2, 0, Sprite_MAX_LENGTH+2+2,  Sprite_MAX_WIDTH+4, 26, 26, 6);
+     X:=160-((Sprite_MAX_LENGTH+1) div 2)*Sprite_LENGTH;
+     Y:=100-((Sprite_MAX_WIDTH+1) div 2)*Sprite_LENGTH;
  end;
 
 
@@ -689,8 +697,8 @@
         begin
             if (OnClick(MouseX , MouseY) = True) then
               begin
-               FDrawBob:=False;
-               FDrawPushedBob:=True;
+               FDrawSprite:=False;
+               FDrawPushedSprite:=True;
                IsMenuScene:=False;
                IsDrawScene:=True;
               end;
@@ -708,8 +716,8 @@
         begin
             if (OnClick(MouseX , MouseY) = True) then
               begin
-               FDrawBob:=False;
-               FDrawPushedBob:=True;
+               FDrawSprite:=False;
+               FDrawPushedSprite:=True;
                Running:=False;
                {Halt; }
               end;
@@ -727,8 +735,8 @@
         begin
             if (OnClick(MouseX , MouseY) = True) then
               begin
-               FDrawBob:=False;
-               FDrawPushedBob:=True;
+               FDrawSprite:=False;
+               FDrawPushedSprite:=True;
                IsMenuScene:=True;
                IsDrawScene:=False;
               end;
@@ -746,9 +754,9 @@
         begin
             if (OnClick(MouseX , MouseY) = True) then
               begin
-               FDrawBob:=False;
-               FDrawPushedBob:=True;
-               BobDrawerMainProgram^.SaveFile;
+               FDrawSprite:=False;
+               FDrawPushedSprite:=True;
+               SpriteEditorMainProgram^.SaveFile;
               end;
         end;
  end;
@@ -767,9 +775,9 @@
         begin
             if (OnClick(MouseX , MouseY) = True) then
               begin
-               FDrawBob:=False;
-               FDrawPushedBob:=True;
-               BobDrawerMainProgram^.LoadFile;
+               FDrawSprite:=False;
+               FDrawPushedSprite:=True;
+               SpriteEditorMainProgram^.LoadFile;
               end;
         end;
  end;
@@ -785,14 +793,14 @@
         begin
             if (OnClick(MouseX , MouseY) = True) then
               begin
-               FDrawBob:=False;
-               FDrawPushedBob:=True;
-               BobDrawerMainProgram^.NewFile;
+               FDrawSprite:=False;
+               FDrawPushedSprite:=True;
+               SpriteEditorMainProgram^.NewFile;
               end;
         end;
  end;
 
- procedure TExBob.OnMouseClick( MouseX , MouseY : Integer);
+ procedure TExSprite.OnMouseClick( MouseX , MouseY : Integer);
  begin
      if OnClick(MouseX , MouseY) = False then exit;
      if MouseClick then
@@ -808,21 +816,21 @@
         FColor:=SelectedColorMouseButtonLeft;
  end;
 
- procedure TMinimapBob.Draw;
+ procedure TMinimapSprite.Draw;
  var i , j : Integer;
  begin
-     for i:=1 to  BobDrawerMainProgram^.BOB_MAX_LENGTH do
-       for j:=1 to BobDrawerMainProgram^.BOB_MAX_WIDTH do
+     for i:=1 to  SpriteEditorMainProgram^.Sprite_MAX_LENGTH do
+       for j:=1 to SpriteEditorMainProgram^.Sprite_MAX_WIDTH do
         if ((i>=0) and (i<=SCREEN_WIDTH)) and ((j>=0) and (j<=SCREEN_HEIGHT)) then
-          _virtualScreenByteContainer^[i+FBobx+SCREEN_WIDTH*(j+FBobY)]:=BobDrawerMainProgram^.BobPixel2DContainer[i,j]^.FColor;
+          _virtualScreenByteContainer^[i+FSpritex+SCREEN_WIDTH*(j+FSpriteY)]:=SpriteEditorMainProgram^.SpritePixel2DContainer[i,j]^.FColor;
  end;
 
 
- procedure TColorBob.Draw;
+ procedure TColorSprite.Draw;
  var i , j : integer;
  begin
-     for i:=FBobX to FBobX+FBobWidth do
-       for j:=FBobY to FBobY+FBobHeight do
+     for i:=FSpriteX to FSpriteX+FSpriteWidth do
+       for j:=FSpriteY to FSpriteY+FSpriteHeight do
         if ((i>=1) and (i<=SCREEN_WIDTH)) and ((j>=0) and (j<=SCREEN_HEIGHT)) then
          begin
           if FSelectedLeft = True then
@@ -834,14 +842,14 @@
          end;
 
      { - Padding !? }
-     for i:=FBobX+2 to FBobX+FBobWidth-3 do
-       for j:=FBobY+2 to FBobY+FBobHeight-3 do
+     for i:=FSpriteX+2 to FSpriteX+FSpriteWidth-3 do
+       for j:=FSpriteY+2 to FSpriteY+FSpriteHeight-3 do
         if ((i>=1) and (i<=SCREEN_WIDTH)) and ((j>=0) and (j<=SCREEN_HEIGHT)) then
          _virtualScreenByteContainer^[i+SCREEN_WIDTH*j]:=FColor
 
  end;
 
- procedure TColorBob.OnMouseClick( MouseX , MouseY : Integer);
+ procedure TColorSprite.OnMouseClick( MouseX , MouseY : Integer);
  var R,G,B : Byte;
  begin
      if OnClick(MouseX , MouseY) = False then exit;
@@ -851,7 +859,7 @@
          if MouseClickButton = MouseLeftButton then
          begin
             SelectedColorMouseButtonLeft:=FColor;
-            BobDrawerMainProgram^.SetWhichMouseButtonPaints(False,True);
+            SpriteEditorMainProgram^.SetWhichMouseButtonPaints(False,True);
             FSelectedLeft:=True;
             FSelectedRight:=False;
          end
@@ -859,7 +867,7 @@
          if MouseClickButton = MouseRightButton then
            begin
              SelectedColorMouseButtonRight:=FColor;
-             BobDrawerMainProgram^.SetWhichMouseButtonPaints(True,False);
+             SpriteEditorMainProgram^.SetWhichMouseButtonPaints(True,False);
              FSelectedRight:=True;
              FSelectedLeft:=False;
            end
@@ -885,19 +893,19 @@
      Running:=True;
 
      { - Init main program }
-     new(BobDrawerMainProgram);
-     BobDrawerMainProgram^.Init;
+     new(SpriteEditorMainProgram);
+     SpriteEditorMainProgram^.Init;
      initmouse;
      showmouse;
      repeat
        PressedKey:=#0;
-       BobDrawerMainProgram^.Draw;
+       SpriteEditorMainProgram^.Draw;
      until
        (Running = False) or (key[KeyEsc] = True);
 
      { - Dispose main program }
-     BobDrawerMainProgram^.Done;
-     dispose(BobDrawerMainProgram);
+     SpriteEditorMainProgram^.Done;
+     dispose(SpriteEditorMainProgram);
 
      { - Change back to the default keyboard handling function }
      setintvec($09,@Old);

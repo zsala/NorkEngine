@@ -15,6 +15,16 @@
         Heigth , Width : integer;
       End;
 
+      {************************************************************}
+      {*                     TIOScreen class                      *}
+      {*                    --------------                        *}
+      {*    Main objective of the class is to overwrite the main  *}
+      {*    functionalities of the TScreen class and provide      *}
+      {*    mouse handling functions/procedures. Furthermore the  *}
+      {*    class implements some basic save/load/create file     *}
+      {*    handling operations.                                  *}
+      {*                                                          *}
+      {************************************************************}
       PIOScreen = ^TIOScreen;
       TIOScreen = object(TScreen)
         _mouse : TMouse;
