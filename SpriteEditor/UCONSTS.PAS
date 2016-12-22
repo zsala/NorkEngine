@@ -21,6 +21,9 @@ const
 
 var
     IsDrawScene , IsMenuScene : Boolean;
+    OldClk : word;
+    SysClk : word absolute $40:$6C;
+    Running : Boolean;
 
     { - Helper functions }
     function IntToStr(i: Longint): string;

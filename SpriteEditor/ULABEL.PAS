@@ -20,8 +20,8 @@ type
       constructor Init( ILabelX, ILabelY : Integer);
       destructor Done;
 
-      procedure Draw( Index : byte; IColor : Byte);virtual; { Draw one should be }
-      procedure DrawText( Text : string; IColor : Byte);virtual; { Draw should be named }
+      procedure Draw( Index : byte; IColor : Byte); virtual; { Draw one should be }
+      procedure DrawText( Text : string; IColor : Byte); virtual; { Draw should be named }
     end;
 
 implementation

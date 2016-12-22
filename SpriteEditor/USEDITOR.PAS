@@ -1,18 +1,18 @@
 
- program SpriteEditorMainProgram_v1; { v1.0.0}
+ unit uSEditor;
+
+ interface
 
  uses
    Dos, Crt, Mouse,
    uConsts,
    uIOScrn , uScreen, uKeys , USprite, UButton, ULabel;
 
- var  OmouseX,OmouseY:integer;
-      OldClk : word;
-      SysClk : word absolute $40:$6C;
-      X , Y  : Integer;
-      ColorSelectedY : Integer;
-      SelectedColorMouseButtonLeft , SelectedColorMouseButtonRight : byte;
-      Running : Boolean;
+ var
+   OMouseX,OMouseY:integer;
+   X , Y  : Integer;
+   ColorSelectedY : Integer;
+   SelectedColorMouseButtonLeft , SelectedColorMouseButtonRight : byte;
 
  type
    PExSprite = ^TExSprite;
@@ -57,7 +57,6 @@
    TNewButton = object(TButton)
       procedure OnMouseClick( MouseX , MouseY : Integer); virtual;
    end;
-
 
    {************************************************************}
    {*                     TSpriteEditor class                  *}
@@ -116,6 +115,8 @@
       End;
 
  var  SpriteEditorMainProgram : PSpriteEditor;
+
+ implementation
 
  procedure TSpriteEditor.SetWhichMouseButtonPaints(Left,Right :Boolean);
  var counter , i , j : integer;
@@ -218,13 +219,13 @@
      new(SpriteSidePanel);
      new(MinimapSprite);
 
-     SpriteMenu^.Init(    1,   0,  40,  15, 24, 30, 6);
+     SpriteMenu^.Init(    1,   0,  60,  15, 24, 30, 6);
      SpriteButton2^.Init(315-Sprite_MAX_LENGTH-2, 0, Sprite_MAX_LENGTH+2+2,  Sprite_MAX_WIDTH+4, 26, 26, 6);
-     SpriteSidePanel^.Init(    1, 16,  40, 200, 26, 26, 6);
+     SpriteSidePanel^.Init(    1, 16,  60, 200, 26, 26, 6);
      MinimapSprite^.Init(315-Sprite_MAX_LENGTH, 2, Sprite_MAX_LENGTH,  Sprite_MAX_WIDTH, 0);
 
      New(MenuLabel);
-     MenuLabel^.Init( -2, -2);
+     MenuLabel^.Init( 10, -2);
  end;
 
 
@@ -524,8 +525,8 @@
 
      writeln;
      writeln(' {---------------------------------------------------------------------------}');
-     writeln(' {                            Save Sprite to a file                             }');
-     writeln(' {                           --------------------                            }');
+     writeln(' {                            Save Sprite to a file                          }');
+     writeln(' {                           -----------------------                         }');
      writeln(' {---------------------------------------------------------------------------}');
      writeln('    |                                                                        ');
      writeln(' {---------------------------------------------------------------------------}');
@@ -582,8 +583,8 @@
      Clrscr;
      writeln;
      writeln(' {---------------------------------------------------------------------------}');
-     writeln(' {                          Load Sprite from a file                             }');
-     writeln(' {                         ----------------------                            }');
+     writeln(' {                        Load Sprite from a file                            }');
+     writeln(' {                       -------------------------                           }');
      writeln(' {---------------------------------------------------------------------------}');
      writeln('    |                                                                        ');
      writeln(' {---------------------------------------------------------------------------}');
@@ -646,12 +647,12 @@
      Clrscr;
      writeln;
      writeln(' {---------------------------------------------------------------------------}');
-     writeln(' {                               Create new Sprite                              }');
+     writeln(' {                               Create new Sprite                           }');
      writeln(' {                              ----------------                             }');
      writeln(' {---------------------------------------------------------------------------}');
      writeln;
      writeln(' {---------------------------------------------------------------------------}');
-     writeln(' {  Enter Sprite sizes >>                                                       }');
+     writeln(' {  Enter Sprite sizes >>                                                    }');
      write(' {  Width:');
      readln(I);
      write(' {  Height:');
@@ -874,39 +875,5 @@
         end
  end;
 
-
- {************************************************************}
- {*                     Main program                         *}
- {*                                                          *}
- {*      Contains the initializations, the main game loop    *}
- {*      and the disposal functions of the objects.          *}
- {*                                                          *}
- {************************************************************}
  begin
-     { - Change keyboard handling with new assembler function }
-     getintvec($09,@Old);
-     setintvec($09,@NewIRQ);
-     fillchar(key, sizeof(key), 0);
-     InitGraphText;
-
-     randomize;
-     Running:=True;
-
-     { - Init main program }
-     new(SpriteEditorMainProgram);
-     SpriteEditorMainProgram^.Init;
-     initmouse;
-     showmouse;
-     repeat
-       PressedKey:=#0;
-       SpriteEditorMainProgram^.Draw;
-     until
-       (Running = False) or (key[KeyEsc] = True);
-
-     { - Dispose main program }
-     SpriteEditorMainProgram^.Done;
-     dispose(SpriteEditorMainProgram);
-
-     { - Change back to the default keyboard handling function }
-     setintvec($09,@Old);
  end.
