@@ -222,7 +222,7 @@
 
      SpriteMenu^.Init(    1,   0,  60,  15, 24, 30, 6);
      SpriteButton2^.Init(315-Sprite_MAX_LENGTH-2, 0, Sprite_MAX_LENGTH+2+2,  Sprite_MAX_WIDTH+4, 26, 26, 6);
-     SpriteSidePanel^.Init(    1, 16,  60, 200, 26, 26, 6);
+     SpriteSidePanel^.Init(    1, 16,  40, 100, 26, 26, 6);
      MinimapSprite^.Init(315-Sprite_MAX_LENGTH, 2, Sprite_MAX_LENGTH,  Sprite_MAX_WIDTH, 0);
 
      New(MenuLabel);
@@ -358,10 +358,11 @@
      for i:=0 to COLOR_PALLETTE_MAX_COLUM do
       for j:=0 to COLOR_PALLETTE_MAX_ROW do
        begin
-        ColorPalletteSpriteArray[counter]^.SetBounds(5+i*Sprite_HALF_LENGTH,
-                                   ColorSelectedY+21+j*Sprite_HALF_LENGTH,
-                                   Sprite_HALF_LENGTH,
-                                   Sprite_HALF_LENGTH);
+        ColorPalletteSpriteArray[counter]^.SetBounds(
+                            5+i*Sprite_HALF_LENGTH,
+            ColorSelectedY+21+j*Sprite_HALF_LENGTH,
+                                Sprite_HALF_LENGTH,
+                                Sprite_HALF_LENGTH);
         if (ColorSelectedY+21+j*Sprite_HALF_LENGTH>8) and
            (ColorSelectedY+21+j*Sprite_HALF_LENGTH<21+16*11) then
           ColorPalletteSpriteArray[counter]^.Draw;
@@ -834,7 +835,8 @@
      for i:=1 to  SpriteEditorMainProgram^.Sprite_MAX_LENGTH do
        for j:=1 to SpriteEditorMainProgram^.Sprite_MAX_WIDTH do
         if ((i>=0) and (i<=SCREEN_WIDTH)) and ((j>=0) and (j<=SCREEN_HEIGHT)) then
-          _virtualScreenByteContainer^[i+FSpritex+SCREEN_WIDTH*(j+FSpriteY)]:=SpriteEditorMainProgram^.SpritePixel2DContainer[i,j]^.FColor;
+          _virtualScreenByteContainer^[i+FSpritex+SCREEN_WIDTH*(j+FSpriteY)]:=
+            SpriteEditorMainProgram^.SpritePixel2DContainer[i,j]^.FColor;
  end;
 
  procedure TColorSprite.SetMyIndex( _MyIndex: Integer);
