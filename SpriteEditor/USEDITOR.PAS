@@ -15,8 +15,8 @@
    SelectedColorMouseButtonLeft , SelectedColorMouseButtonRight : byte;
 
  type
-   PExSprite = ^TExSprite;
-   TExSprite = object(TSprite)
+   PSpritePixel2DBob = ^TSpritePixel2DBob;
+   TSpritePixel2DBob = object(TSprite)
      procedure OnMouseClick( MouseX , MouseY : Integer); virtual;
    end;
 
@@ -24,12 +24,15 @@
    {*                     TColorSprite class                   *}
    {*                     ---------------                      *}
    {*    Main objective of the class is to draw colors in      *}
-   {*    the Labelor.                                          *}
+   {*    the Editor.                                           *}
    {*                                                          *}
    {************************************************************}
    PColorSprite = ^TColorSprite;
    TColorSprite = object(TSprite)
+     MyIndex: Integer;
      FSelectedRight,  FSelectedLeft : Boolean;
+
+     procedure SetMyIndex( _MyIndex: Integer);
      procedure OnMouseClick( MouseX , MouseY : Integer); virtual;
      procedure Draw; virtual;
    end;
@@ -79,7 +82,7 @@
         SpriteButton2 : PButton;
         MinimapSprite : ^TMinimapSprite;
         SpriteSidePanel : PButton;
-        SpritePixel2DContainer : array [1..120,1..120] of PExSprite;
+        SpritePixel2DContainer : array [1..120,1..120] of PSpritePixel2DBob;
         ColorPalletteSpriteArray : array [0..MAX_PALLETTE_COLORS] of PColorSprite;
         MenuLabel : ^TLabel;
 
@@ -106,7 +109,7 @@
         procedure OnMouseButtonPressed( MouseX , MouseY : Integer); virtual;
         procedure OnKeyPressed;  virtual;
         procedure DoneKey;
-        procedure SetWhichMouseButtonPaints(Left,Right :Boolean);
+        procedure ClearColorPalleteSpritesExceptIndex(MyIndex: Integer);
 
         procedure SaveFile;
         procedure LoadFile;
@@ -118,19 +121,17 @@
 
  implementation
 
- procedure TSpriteEditor.SetWhichMouseButtonPaints(Left,Right :Boolean);
+ procedure TSpriteEditor.ClearColorPalleteSpritesExceptIndex(MyIndex: Integer);
  var counter , i , j : integer;
  begin
+     { - Clear all pallette members and skip the one that are currently used}
      counter:=0;
      for i:=0 to COLOR_PALLETTE_MAX_COLUM do
       for j:=0 to COLOR_PALLETTE_MAX_ROW do
        begin
-        if Right = True then
+        if counter <> MyIndex then
           begin
             ColorPalletteSpriteArray[counter]^.FSelectedRight:=False;
-          end
-        else
-          begin
             ColorPalletteSpriteArray[counter]^.FSelectedLeft:=False;
             Inc(counter);
           end;
@@ -210,7 +211,7 @@
         );
         ColorPalletteSpriteArray[counter]^.FSelectedRight:=False;
         ColorPalletteSpriteArray[counter]^.FSelectedLeft:=False;
-
+        ColorPalletteSpriteArray[counter]^.SetMyIndex( counter);
         Inc(counter);
        End;
 
@@ -374,10 +375,11 @@
 
          SpriteMenu^.OnMouseClick( MousePoint.X , MousePoint.Y );
          SpriteButton2^.OnMouseClick( MousePoint.X , MousePoint.Y );
-         SpriteSidePanel^.OnMouseClick( MousePoint.X , MousePoint.Y );
 
-         for i:=0 to 255 do
+         for i:=0 to MAX_PALLETTE_COLORS do
            ColorPalletteSpriteArray[i]^.OnMouseClick( MousePoint.X , MousePoint.Y );;
+
+         SpriteSidePanel^.OnMouseClick( MousePoint.X , MousePoint.Y );
 
          for i:=1 to Sprite_MAX_LENGTH do
           for j:=1 to Sprite_MAX_WIDTH do
@@ -455,6 +457,7 @@
      if not(MouseHooked) then
         begin
          ReadMouse;
+
          BtMReturn^.OnMouseClick( MousePoint.X , MousePoint.Y );
          BtMSave^.OnMouseClick( MousePoint.X , MousePoint.Y );
          BtMLoad^.OnMouseClick( MousePoint.X , MousePoint.Y );
@@ -801,14 +804,22 @@
         end;
  end;
 
- procedure TExSprite.OnMouseClick( MouseX , MouseY : Integer);
+ procedure TSpritePixel2DBob.OnMouseClick( MouseX , MouseY : Integer);
  begin
      if OnClick(MouseX , MouseY) = False then exit;
+
      if MouseClick then
       if MouseClickButton = MouseLeftButton then
-        FColor:=SelectedColorMouseButtonLeft
-      else if MouseClickButton = MouseRightButton then
-        FColor:=SelectedColorMouseButtonRight;
+        begin
+          FColor:=SelectedColorMouseButtonLeft
+        end
+      else
+        begin
+          if MouseClickButton = MouseRightButton then
+          begin
+            FColor:=SelectedColorMouseButtonRight;
+          end
+        end;
 
      if (key[keyE] = true) then
         FColor:=SelectedColorMouseButtonRight;
@@ -826,6 +837,10 @@
           _virtualScreenByteContainer^[i+FSpritex+SCREEN_WIDTH*(j+FSpriteY)]:=SpriteEditorMainProgram^.SpritePixel2DContainer[i,j]^.FColor;
  end;
 
+ procedure TColorSprite.SetMyIndex( _MyIndex: Integer);
+ begin
+   MyIndex := _MyIndex;
+ end;
 
  procedure TColorSprite.Draw;
  var i , j : integer;
@@ -860,7 +875,7 @@
          if MouseClickButton = MouseLeftButton then
          begin
             SelectedColorMouseButtonLeft:=FColor;
-            SpriteEditorMainProgram^.SetWhichMouseButtonPaints(False,True);
+            SpriteEditorMainProgram^.ClearColorPalleteSpritesExceptIndex(MyIndex);
             FSelectedLeft:=True;
             FSelectedRight:=False;
          end
@@ -868,7 +883,7 @@
          if MouseClickButton = MouseRightButton then
            begin
              SelectedColorMouseButtonRight:=FColor;
-             SpriteEditorMainProgram^.SetWhichMouseButtonPaints(True,False);
+             SpriteEditorMainProgram^.ClearColorPalleteSpritesExceptIndex(MyIndex);
              FSelectedRight:=True;
              FSelectedLeft:=False;
            end
