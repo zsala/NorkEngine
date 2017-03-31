@@ -29,9 +29,13 @@ When ever there is the need to explain something in the code the following codin
 Every class needs to have a comment before declaration, with the following style:
 
 {************************************************************}
+
 {*                     TScreen class                        *}
+
 {*                    --------------                        *}
+
 {*    Description etc.                                      *}
+
 {************************************************************}
 
 4. Code comments
