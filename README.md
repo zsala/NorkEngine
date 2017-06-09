@@ -1,6 +1,6 @@
 # NorkEngine
 
-Turo Pascal 7.0 Game Engine
+Turbo Pascal 7.0 Game Engine
 
 The engine contains the work of me, Laszlo-Andras Zsurzsa from 2009. The goal of this repository is to provide as it is, the code. The code will be released open-source. In the future I would like to modernize the code and change the rendering to OpenGL in order to be able to provide a donwlodable solution for multiple OS.
 
