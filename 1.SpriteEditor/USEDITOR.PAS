@@ -100,6 +100,10 @@
         {                       Main functions                    }
         {---------------------------------------------------------}
         constructor Init;
+
+        procedure InitSceneDraw;
+        procedure InitSceneMenu;
+
         procedure BeforeDraw; virtual;
         procedure Draw; virtual;
 
@@ -114,6 +118,9 @@
         procedure SaveFile;
         procedure LoadFile;
         procedure NewFile;
+
+        procedure SavePalette;
+
         destructor Done; virtual;
       End;
 
@@ -139,96 +146,107 @@
  end;
 
  constructor TSpriteEditor.Init;
- var I , J: integer;
-     counter : Integer;
  begin
      inherited Init;
 
      IsDrawScene:=False;
      IsMenuScene:=True;
 
-     {---------------------------------------------------------}
-     {                       SceneMenu                         }
-     {---------------------------------------------------------}
-     new(BtMReturn);
-     new(BtMSave);
-     new(BtMLoad);
-     new(BtMExit);
-     new(BtMNew);
-     new(NewButtonLabel);
-     new(DrawButtonLabel);
-     new(SaveButtonLabel);
-     new(LoadButtonLabel);
-     new(ExitButtonLabel);
-
-     BtMNew^.Init(    20,  25, 75, 15, 24, 30, 40);
-     BtMreturn^.Init( 20,  50, 75, 15, 24, 30, 40);
-     BtMSave^.Init(   20,  75, 75, 15, 26, 30, 40);
-     BtMLoad^.Init(   20, 100, 75, 15, 26, 30, 40);
-     BtMExit^.Init(   20, 125, 75, 15, 26, 30, 40);
-
-     NewButtonLabel^.Init(  25,  25-1);
-     DrawButtonLabel^.Init( 25,  50-1);
-     SaveButtonLabel^.Init( 25,  75-1);
-     LoadButtonLabel^.Init( 25, 100-1);
-     ExitButtonLabel^.Init( 25, 125-1);
-
-
-     {---------------------------------------------------------}
-     {                       SceneDraw                         }
-     {---------------------------------------------------------}
-     Sprite_MAX_LENGTH:=  24;
-     Sprite_MAX_WIDTH :=  24;
-     Sprite_LENGTH    :=  24;
-     Sprite_HALF_LENGTH:=  16;
-     COLOR_PALLETTE_MAX_COLUM :=   1;
-     COLOR_PALLETTE_MAX_ROW := 127;
-     ColorSelectedY :=   0;
-
-     { - Assign middle of the picture }
-      X:=-((Sprite_MAX_LENGTH+1) div 2)*Sprite_LENGTH;
-      Y:=-((Sprite_MAX_WIDTH+1) div 2)*Sprite_LENGTH;
-
-     for i:=1 to 120 do
-      for j:=1 to 120 do
-       begin
-         new(SpritePixel2DContainer[i,j]);
-         SpritePixel2DContainer[i,j]^.Init( i*Sprite_LENGTH, j*Sprite_LENGTH, Sprite_LENGTH, Sprite_LENGTH,i+j*2);
-       end;
-
-     counter:=0;
-     for i:=0  to COLOR_PALLETTE_MAX_COLUM do
-      for j:=0 to COLOR_PALLETTE_MAX_ROW do
-       Begin
-
-        new(ColorPalletteSpriteArray[counter]);
-
-        ColorPalletteSpriteArray[counter]^.Init(
-           8 + i*Sprite_HALF_LENGTH,
-          21 + j*Sprite_HALF_LENGTH,
-          Sprite_HALF_LENGTH,
-          Sprite_HALF_LENGTH,counter
-        );
-        ColorPalletteSpriteArray[counter]^.FSelectedRight:=False;
-        ColorPalletteSpriteArray[counter]^.FSelectedLeft:=False;
-        ColorPalletteSpriteArray[counter]^.SetMyIndex( counter);
-        Inc(counter);
-       End;
-
-     new(SpriteMenu);
-     new(SpriteButton2);
-     new(SpriteSidePanel);
-     new(MinimapSprite);
-
-     SpriteMenu^.Init(    1,   0,  60,  15, 24, 30, 6);
-     SpriteButton2^.Init(315-Sprite_MAX_LENGTH-2, 0, Sprite_MAX_LENGTH+2+2,  Sprite_MAX_WIDTH+4, 26, 26, 6);
-     SpriteSidePanel^.Init(    1, 16,  40, 100, 26, 26, 6);
-     MinimapSprite^.Init(315-Sprite_MAX_LENGTH, 2, Sprite_MAX_LENGTH,  Sprite_MAX_WIDTH, 0);
-
-     New(MenuLabel);
-     MenuLabel^.Init( 10, -2);
+     InitSceneDraw;
+     InitSceneMenu;
  end;
 
+ procedure TSpriteEditor.InitSceneDraw;
+ begin
+    {---------------------------------------------------------}
+    {                       SceneMenu                         }
+    {---------------------------------------------------------}
+    new(BtMReturn);
+    new(BtMSave);
+    new(BtMLoad);
+    new(BtMExit);
+    new(BtMNew);
+    new(NewButtonLabel);
+    new(DrawButtonLabel);
+    new(SaveButtonLabel);
+    new(LoadButtonLabel);
+    new(ExitButtonLabel);
+
+    BtMNew^.Init(    20,  25, 75, 15, 24, 30, 40);
+    BtMreturn^.Init( 20,  50, 75, 15, 24, 30, 40);
+    BtMSave^.Init(   20,  75, 75, 15, 26, 30, 40);
+    BtMLoad^.Init(   20, 100, 75, 15, 26, 30, 40);
+    BtMExit^.Init(   20, 125, 75, 15, 26, 30, 40);
+
+    NewButtonLabel^.Init(  25,  25-1);
+    DrawButtonLabel^.Init( 25,  50-1);
+    SaveButtonLabel^.Init( 25,  75-1);
+    LoadButtonLabel^.Init( 25, 100-1);
+    ExitButtonLabel^.Init( 25, 125-1);
+ end;
+
+ procedure TSpriteEditor.InitSceneMenu;
+ var i, j, counter: Integer;
+ begin
+    {---------------------------------------------------------}
+    {                       SceneDraw                         }
+    {---------------------------------------------------------}
+    Sprite_MAX_LENGTH:=  24;
+    Sprite_MAX_WIDTH :=  24;
+    Sprite_LENGTH    :=  24;
+    Sprite_HALF_LENGTH:=  16;
+    COLOR_PALLETTE_MAX_COLUM :=   1;
+    COLOR_PALLETTE_MAX_ROW := 127;
+    ColorSelectedY :=   0;
+
+    { - Assign middle of the picture }
+    X:=-((Sprite_MAX_LENGTH+1) div 2)*Sprite_LENGTH;
+    Y:=-((Sprite_MAX_WIDTH+1) div 2)*Sprite_LENGTH;
+
+    for i:=1 to 120 do
+      begin
+        for j:=1 to 120 do
+          begin
+            new(SpritePixel2DContainer[i,j]);
+            SpritePixel2DContainer[i,j]^.Init( i*Sprite_LENGTH, j*Sprite_LENGTH, Sprite_LENGTH, Sprite_LENGTH,i+j*2);
+            end;
+      end;
+     counter:=0;
+
+     for i:=0  to COLOR_PALLETTE_MAX_COLUM do
+       begin
+         for j:=0 to COLOR_PALLETTE_MAX_ROW do
+           begin
+
+             new(ColorPalletteSpriteArray[counter]);
+
+             ColorPalletteSpriteArray[counter]^.Init(
+              8 + i*Sprite_HALF_LENGTH,
+              21 + j*Sprite_HALF_LENGTH,
+              Sprite_HALF_LENGTH,
+              Sprite_HALF_LENGTH,counter
+             );
+
+             ColorPalletteSpriteArray[counter]^.FSelectedRight:=False;
+             ColorPalletteSpriteArray[counter]^.FSelectedLeft:=False;
+             ColorPalletteSpriteArray[counter]^.SetMyIndex( counter);
+             Inc(counter);
+           end;
+       end;
+
+      new(SpriteMenu);
+      new(SpriteButton2);
+      new(SpriteSidePanel);
+      new(MinimapSprite);
+
+      SpriteMenu^.Init(    1,   0,  60,  15, 24, 30, 6);
+      SpriteButton2^.Init(315-Sprite_MAX_LENGTH-2, 0, Sprite_MAX_LENGTH+2+2,  Sprite_MAX_WIDTH+4, 26, 26, 6);
+      SpriteSidePanel^.Init(    1, 16,  40, 100, 26, 26, 6);
+      MinimapSprite^.Init(315-Sprite_MAX_LENGTH, 2, Sprite_MAX_LENGTH,  Sprite_MAX_WIDTH, 0);
+
+      New(MenuLabel);
+      MenuLabel^.Init( 10, -2);
+ end;
 
  destructor TSpriteEditor.Done;
  var i , j , counter : integer;
@@ -266,6 +284,9 @@
  begin
      if key[KeyS] = true then begin donekey;inc(Y, 2*Sprite_LENGTH); end;
      if key[KeyW] = true then begin donekey;dec(Y, 2*Sprite_LENGTH); end;
+
+     if key[KeyT] = true then
+      SpriteEditorMainProgram^.SavePalette;
 
      if key[KeyR] = true then
       if (ColorSelectedY<>-116*16) then
@@ -393,7 +414,7 @@
      if (MousePoint.X>0) and (MousePoint.Y> 0) then
       OnMouseButtonPressed( MousePoint.X, MousePoint.Y );
 
-     { - Check if a key was pressed! }
+     { - Check if a key was pressed! TODO: generalize !!!!}
      if (OldClk <> SysClk) and
         ((MouseX <> OMouseX) or (MouseY <> OMouseY)) then
           begin
@@ -515,6 +536,39 @@
  begin
      For I:=1 to 255 do
       Key[I]:=False;
+ end;
+
+ procedure TSpriteEditor.SavePalette;
+ var i , j , CollorId: Integer;
+     f : Text;
+ begin
+     inherited SavePalette;
+
+     setintvec($09,@Old);
+     EndMCGA;
+
+     writeln;
+     writeln(' {---------------------------------------------------------------------------}');
+     writeln(' {                            Save Editor Palette                            }');
+     writeln(' {                           -----------------------                         }');
+     writeln(' {---------------------------------------------------------------------------}');
+
+     assign(f, 'palette.in');
+     rewrite(f);
+
+     writeln(f,Sprite_MAX_LENGTH,' ',Sprite_MAX_WIDTH);
+     for i:=0 to MAX_PALLETTE_COLORS do
+      begin
+        writeLN(f, Palette^[i].R,' ', Palette^[i].G,' ', Palette^[i].B);
+        writeln(f);
+        inc(i);
+      end;
+     close(f);
+
+
+     setintvec($09,@NewIRQ);
+     fillchar(key, sizeof(key), 0);
+     SetMCGA;
  end;
 
  procedure TSpriteEditor.SaveFile;

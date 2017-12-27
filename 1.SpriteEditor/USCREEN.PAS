@@ -68,9 +68,9 @@ end;
 
 constructor TScreen.Init;
 begin
-  setmcga;          { - Init MCGA grpahics mode. }
+  setmcga;                           { - Init MCGA grpahics mode. }
   new(_virtualScreenByteContainer);  { - Initialize corresponding memory on the heap. }
-  new(Palette);     { - 256*3 byte memory init for the Palette. }
+  new(Palette);                      { - 256*3 byte memory init for the Palette. }
 end;
 
 procedure TScreen.GetPaletteRGB( N: byte; var R, G, B: byte);
@@ -108,8 +108,8 @@ procedure TScreen.SetRGB( N, R, G, B: byte); assembler;
 asm
   mov    dx,03c8h      { RGB write register setup                }
   mov    al,N
-  out    dx,al         { N. szin modositasa                      }
-  mov    dx,03c9h      { RGB adatregiszter                       }
+  out    dx,al         { N.th color modification                 }
+  mov    dx,03c9h      { RGB register                            }
   mov    al,R
   out    dx,al         { Write R parameter                       }
   mov    al,G

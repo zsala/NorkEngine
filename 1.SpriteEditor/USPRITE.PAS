@@ -9,11 +9,18 @@
    uKeys, uScreen;
 
  type
+     {******************************************************************}
+     {*                     TSprite class                              *}
+     {*                    --------------                              *}
+     {*    Main objective of the class is to draw a colored rectangle. *}
+     {*    Sprite's are usually images. In this case an image is a     *}
+     {*    a simple color matrix that represents a figure.             *}
+     {*                                                                *}
+     {******************************************************************}
       PSprite = ^TSprite;
       TSprite = object
        FSpriteX , FSpriteY , FSpriteWidth , FSpriteHeight : Integer;
        FColor : Byte;
-
        constructor Init(ISpriteX , ISpriteY , ISpriteWidth , ISpriteHeight : integer; IColor : Byte);
        destructor Done;
 

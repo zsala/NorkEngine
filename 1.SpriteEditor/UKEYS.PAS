@@ -11,27 +11,6 @@
  uses
    dos;
 
- const
-      KeyQ = 16;   KeyA = 30;  KeyZ = 44;
-      KeyW = 17;   KeyS = 31;  KeyX = 46;
-      KeyE = 18;   KeyD = 32;  KeyC = 47;
-      KeyR = 19;   KeyF = 33;  KeyV = 48;
-      KeyT = 20;   KeyG = 34;  KeyB = 49;
-      KeyY = 21;   KeyH = 35;  KeyN = 50;
-      KeyU = 22;   KeyJ = 36;  KeyM = 51;
-      KeyI = 23;   KeyK = 37;
-      KeyO = 24;   KeyL = 38;
-      KeyP = 25;
-
-      KeyEsc = 1;
-      KeyEnter = 28;
-      KeySpace = 57;
-      Key2 = 42;
-      KeyFel = 72;
-      KeyLe = 80;
-      KeyBal = 75;
-      KeyJobb = 77;
-
  type Letter = record
         Drawing : array [1..15,1..15] of Byte;
       end;

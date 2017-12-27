@@ -40,6 +40,8 @@
         procedure SaveFile;
         procedure LoadFile;
         procedure NewFile;
+
+        procedure SavePalette;
       End;
 
  var  MousePoint : TPoint;
@@ -57,8 +59,12 @@
 
      Randomize;
      for i:=0 to SCREEN_WIDTH do
+      begin
       for j:=0 to SCREEN_HEIGHT do
+        begin
          SetPixel(i,j,0);
+        end
+      end
 
      Assign(f, 'cursor.ico');
      Reset(f);
@@ -103,16 +109,18 @@
 
  procedure TIOScreen.PressedMouseXY(var Point : TPoint);
  begin
-      if (GetMx(MouseX)>=0) and (GetMX(MouseY)>=0) then
-       begin
-        Point.X:=GetMx(MouseX);
-        Point.Y:=GetMy(MouseY);
-       end
-      else
-       begin
-        Point.X:=-1;
-        Point.Y:=-1;
-       end;
+   Point.X:=-1;
+   Point.Y:=-1;
+
+   if (GetMx(MouseX)>=0) and (GetMX(MouseY)>=0) then
+    begin
+      Point.X:=GetMx(MouseX);
+      Point.Y:=GetMy(MouseY);
+    end
+ end;
+
+ procedure TIOScreen.SavePalette;
+ begin
  end;
 
  procedure TIOScreen.SaveFile;
@@ -133,13 +141,13 @@
    inherited BeforeDraw;
 
    for i:=1 to _mouse.Width do
-   begin
+    begin
      for j:=1 to _mouse.Heigth do
      begin
        if _mouse.Image[i,j]<>-1 then
          SetPixel(i+GetMx(MouseX),j+GetMy(MouseY),_mouse.Image[i,j]);
      end
-   end
+    end
  end;
 
  begin
