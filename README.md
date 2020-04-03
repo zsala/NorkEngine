@@ -55,21 +55,7 @@ Link to the open-source project: [Not defined]
 
 When ever there is the need to explain something in the code the following coding styles will be applied through the whole project.
 
-1. Variables
-
-2. Function's
-
-3. Classes
-
-Every class needs to have a comment before declaration, with the following style:
-
-{************************************************************}
-{*                     TScreen class                        *}
-{*                    --------------                        *}
-{*    Description etc.                                      *}
-{************************************************************}
-
-4. Code comments
+TBD
 
 Describing the code should be done only in the case it is really necesarry. The comment can be above or to the right of to the code, depending on the length of the comment.
 
