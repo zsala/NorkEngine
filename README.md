@@ -2,7 +2,7 @@
 
 Turbo Pascal 7.0 Game Engine
 
-The engine contains the work of me, Laszlo-Andras Zsurzsa from 2009. The goal of this repository is to provide as it is, the code. The code will be released open-source. In the future I would like to modernize the code and change the rendering to OpenGL in order to be able to provide a donwlodable solution for multiple OS.
+The engine contains my game engine written in Turbo Pascal from 2009. The goal of this repository is to provide as it is, the code. The code will be released open-source. In the future I would like to modernize the code and change the rendering to OpenGL in order to be able to provide a donwlodable solution for multiple OS.
 
 Link to the open-source project: [Not defined]
 
@@ -19,17 +19,6 @@ Link to the open-source project: [Not defined]
 # Coding standard's
 
 When ever there is the need to explain something in the code the following coding styles will be applied through the whole project.
-
-1. Variables
-...
-
-2. Function's
-...
-
-3. Classes
-
-Every class needs to have a comment before declaration, with the following style:
-...
 
 4. Code comments
 
@@ -64,3 +53,5 @@ Describing the code should be done only in the case it is really necesarry. The 
 # Disclaimer
 
 The Mouse.TPU is not my work, so no responsability held in reusing the unit file. The source is unknown. The LICENSE is only valid on my work.
+
+[Abandoned]
